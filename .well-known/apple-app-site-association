@@ -1,0 +1,17 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": [
+          "JD4R6V223R.com.omnidex.app"
+        ],
+        "components": [
+          {
+            "/": "/omnidex-legal/share.html",
+            "comment": "Open privacy-safe OmniDex catch snapshots in the app"
+          }
+        ]
+      }
+    ]
+  }
+}
