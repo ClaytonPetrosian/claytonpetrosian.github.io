@@ -1,0 +1,47 @@
+name: RustChain anti-emulation evidence
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/rustchain-antemulation.yml
+
+permissions:
+  contents: read
+
+jobs:
+  github-hosted-runner:
+    name: GitHub-hosted Ubuntu fingerprint check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the pinned RustChain source
+        uses: actions/checkout@v4
+        with:
+          repository: Scottcjn/Rustchain
+          ref: 8c79fba7561283ff8c880258152cd15e2610c312
+          path: rustchain
+
+      - name: Run the official anti-emulation check
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "runner: GitHub-hosted ubuntu-latest"
+          echo "kernel: $(uname -a)"
+          echo "architecture: $(uname -m)"
+          if command -v systemd-detect-virt >/dev/null 2>&1; then
+            echo "systemd-detect-virt: $(systemd-detect-virt || true)"
+          else
+            echo "systemd-detect-virt: unavailable"
+          fi
+          python3 - <<'PY'
+          import json
+          import sys
+
+          sys.path.insert(0, "rustchain/miners/linux")
+          from fingerprint_checks import check_anti_emulation
+
+          passed, data = check_anti_emulation()
+          print(json.dumps({"anti_emulation_passed": passed, **data}, indent=2, sort_keys=True))
+          if passed:
+              raise SystemExit("The hosted runner was not detected; do not use this run as bounty evidence.")
+          PY
