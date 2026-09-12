@@ -53,11 +53,17 @@ jobs:
           python3 -m pip install --disable-pip-version-check --no-deps clawrtc==1.8.0
           python3 - <<'PY'
           import json
+          import importlib.metadata
           import clawrtc
           from clawrtc.data.fingerprint_checks import check_anti_emulation
 
           passed, data = check_anti_emulation()
-          print(json.dumps({"clawrtc_version": clawrtc.__version__, "anti_emulation_passed": passed, **data}, indent=2, sort_keys=True))
+          print(json.dumps({
+              "clawrtc_distribution_version": importlib.metadata.version("clawrtc"),
+              "clawrtc_module_version": clawrtc.__version__,
+              "anti_emulation_passed": passed,
+              **data,
+          }, indent=2, sort_keys=True))
           if passed:
               raise SystemExit("The hosted runner was not detected by ClawRTC 1.8.0; do not use this run as bounty evidence.")
           PY
